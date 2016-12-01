@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.*?>
+
+
+<AnchorPane id="AnchorPane" prefHeight="800" prefWidth="720" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lotteriajfx.FXMLDocumentController">
+    <children>
+        <VBox  fillWidth="true"  AnchorPane.topAnchor="20.0" AnchorPane.bottomAnchor="20.0"
+               AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" >
+            <children>
+                <HBox   >
+                    <children>
+                        <Button text="Estrai" onAction="#estraiNumeroAction" fx:id="estraiBtn" />
+                    </children>
+                </HBox>
+                <VBox  maxWidth="Infinity"  >
+                    <children>
+                        <Label  style="-fx-font: BOLD 128 Tahoma;"   fx:id="numeroEstrattoLabel" alignment="BASELINE_CENTER" />
+                        <Label  style="-fx-font: NORMAL 64 Tahoma;"   fx:id="premioEstrattoLabel" alignment="BASELINE_CENTER" />
+                    </children>
+                </VBox>
+                <HBox fillHeight="true" spacing="20.0"   >
+                    <children>
+                        <Label style="-fx-font: NORMAL 20 Tahoma;" text="Estrazione " />
+                        <Label style="-fx-font: BOLD 20 Tahoma;"    fx:id="numeroEstrazioni" />
+                        <Label style="-fx-font: NORMAL 20 Tahoma;" text=" di " />
+                        <Label style="-fx-font: BOLD 20 Tahoma;"   fx:id="numeroPremi" />
+                    </children>
+                </HBox>
+                <TableView fx:id="tableView" GridPane.columnIndex="0" 
+                           GridPane.rowIndex="1"  >
+                    <columns>
+                        <TableColumn text="Contatore">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="contatore" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn text="Biglietto">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="biglietto" />
+                            </cellValueFactory>
+                        </TableColumn>
+                    
+                        <TableColumn text="Premio" prefWidth="450" >
+                            <cellValueFactory>
+                                <PropertyValueFactory property="premio"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                    </columns>    
+                </TableView>
+               
+              
+                <HBox   >
+                    <children>
+                        <Button text="Salva dati " onAction="#salvaDatiAction" fx:id="salvaDatiButton" />
+                    </children>
+                </HBox>
+                
+                <TextArea fx:id="logsTextArea" >
+                    
+                </TextArea>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
