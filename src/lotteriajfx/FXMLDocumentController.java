@@ -16,7 +16,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,7 +27,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.Background;
 import javafx.scene.text.Font;
 import lotteriajfx.model.Estrazione;
 import lotteriajfx.model.EstrazioneListItem;
@@ -40,6 +38,8 @@ import lotteriajfx.model.EstrazioneListItem;
 public class FXMLDocumentController implements Initializable {
 
     private Estrazione estrazione;
+
+    private boolean preparazioneEstrazione = true;
 
     @FXML
     private Label numeroEstrattoLabel;
@@ -60,14 +60,9 @@ public class FXMLDocumentController implements Initializable {
     private TableView<EstrazioneListItem> tableView;
     @FXML
     Button estraiBtn;
-    
-    @FXML 
-    TextArea logsTextArea;
 
     @FXML
-    private void resetAction(ActionEvent event) {
-       
-    }
+    TextArea logsTextArea;
 
     @FXML
     private void salvaDatiAction(ActionEvent event) {
@@ -76,13 +71,12 @@ public class FXMLDocumentController implements Initializable {
             //create a temporary file
             String originalFileName = "lotteria-risultato";
             int counter = 0;
-           File logFile ;
+            File logFile;
             do {
                 counter++;
                 String fileName = originalFileName + "-" + counter + ".txt";
                 logFile = new File(System.getProperty("user.home") + "/" + fileName);
             } while (logFile.exists());
-           
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(logFile));
             writer.write("Cont.\tBigl.\tPremio\n");
@@ -103,8 +97,8 @@ public class FXMLDocumentController implements Initializable {
 
             //Close writer
             writer.close();
-            
-            logsTextArea.setText(logsTextArea.getText() + "\n" + "Dati salvati in " + logFile.getAbsolutePath() );
+
+            addLog( "Dati salvati in " + logFile.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -112,30 +106,44 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void estraiNumeroAction(ActionEvent event) {
-        estrazione.avviaEstrazione();
-        
-        numeroEstrattoLabel.setText(estrazione.getUltimoEstrattoAsString());
-        premioEstrattoLabel.setText(estrazione.getElencoPremi().get(estrazione.getContNumeriEstratti() - 1));
-        List<Integer> numeriEstratti = estrazione.getNumeriEstratti();
-        List<EstrazioneListItem> numeriEstrattiString = new ArrayList<>();
-        int counter = 1;
-        for (Integer i : numeriEstratti) {
-            EstrazioneListItem item = new EstrazioneListItem("" + counter, "" + i, estrazione.getElencoPremi().get(counter - 1));
-            numeriEstrattiString.add(item);
-            counter++;
-        }
-        ObservableList<EstrazioneListItem> data = tableView.getItems();
-        data.setAll(numeriEstrattiString);
+        if (preparazioneEstrazione) {
+            numeroEstrattoLabel.setText("");
+            premioEstrattoLabel.setText(estrazione.getElencoPremi().get(estrazione.getContNumeriEstratti()));
+        } else {
+            estrazione.avviaEstrazione();
 
-        numeroEstrazioni.setText("" + estrazione.getContNumeriEstratti());
-        estraiBtn.setDisable(estrazione.isFinished());
+            numeroEstrattoLabel.setText(estrazione.getUltimoEstrattoAsString());
+            premioEstrattoLabel.setText(estrazione.getElencoPremi().get(estrazione.getContNumeriEstratti() - 1));
+
+            List<Integer> numeriEstratti = estrazione.getNumeriEstratti();
+            List<EstrazioneListItem> numeriEstrattiString = new ArrayList<>();
+            int counter = 1;
+            for (Integer i : numeriEstratti) {
+                EstrazioneListItem item = new EstrazioneListItem("" + counter, "" + i, estrazione.getElencoPremi().get(counter - 1));
+                numeriEstrattiString.add(item);
+                counter++;
+            }
+            ObservableList<EstrazioneListItem> data = tableView.getItems();
+            data.setAll(numeriEstrattiString);
+
+            numeroEstrazioni.setText("" + estrazione.getContNumeriEstratti());
+            estraiBtn.setDisable(estrazione.isFinished());
+            
+            if (estrazione.isFinished()) {
+                salvaDatiAction(null);
+            }
+        }
+
+        preparazioneEstrazione = !preparazioneEstrazione;
+        estraiBtnText();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
             estrazione = new Estrazione();
-            logsTextArea.setText(logsTextArea.getText() + "\n" + "Dati estrazione caricati");
+            estraiBtnText();
+            addLog("Dati estrazione caricati");
             numeroPremi.setText(estrazione.numeroPremi() + "");
             numeroEstrattoLabel.setFont(Font.font("Cambria", 128));
             // logsTextArea.setBackground(Background.);
@@ -149,6 +157,22 @@ public class FXMLDocumentController implements Initializable {
             }
         }
 
+    }
+    
+    protected void addLog(String msg) {
+        if (logsTextArea.getText().isEmpty()) {
+            logsTextArea.setText(msg);
+        } else {
+            logsTextArea.setText(logsTextArea.getText() + "\n" + msg);
+        }
+    }
+
+    protected void estraiBtnText() {
+        if (preparazioneEstrazione) {
+            estraiBtn.setText("PROSSIMA ESTRAZIONE");
+        } else {
+            estraiBtn.setText("ESTRAI");
+        }
     }
 
 }
